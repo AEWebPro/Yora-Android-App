@@ -7,17 +7,17 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".InfraStructure.YoraApplication">
+        android:name="com.example.ae.yora.InfraStructure.YoraApplication">
 
-        <activity android:name=".activities.MainActivity">
+        <activity android:name="com.example.ae.yora.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.LoginActivity" />
-        <activity android:name=".activities.LoginNarrowActivity" />
+        <activity android:name="com.example.ae.yora.activities.LoginActivity" />
+        <activity android:name="com.example.ae.yora.activities.LoginNarrowActivity" />
 
     </application>
 

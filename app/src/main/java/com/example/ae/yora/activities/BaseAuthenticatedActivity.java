@@ -13,7 +13,6 @@ public abstract class BaseAuthenticatedActivity extends BaseActivity {
 
       if(!application.getAuth().getUser().isLoggedIn()){
           startActivity(new Intent(this, LoginActivity.class));
-          Log.i("Authen Activity", "We are here");
 
           finish();
           return;

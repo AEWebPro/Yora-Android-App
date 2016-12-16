@@ -18,7 +18,8 @@
 
         <activity android:name="com.example.ae.yora.activities.LoginActivity" />
         <activity android:name="com.example.ae.yora.activities.LoginNarrowActivity" />
-
+        <activity android:name=".activities.RegisterActivity" />
+        <activity android:name=".activities.ExternalLoginActivity" />
     </application>
 
 </manifest>

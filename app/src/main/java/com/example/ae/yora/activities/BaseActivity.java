@@ -12,20 +12,31 @@ import android.view.View;
 import com.example.ae.yora.InfraStructure.YoraApplication;
 import com.example.ae.yora.R;
 import com.example.ae.yora.views.NavDrawer;
+import com.squareup.otto.Bus;
 
 public abstract class BaseActivity extends AppCompatActivity{
     protected YoraApplication application;
     protected Toolbar toolbar;
     protected NavDrawer navDrawer;
     protected boolean isTablet;
+    protected Bus bus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         application = (YoraApplication) getApplication();
+        bus = application.getBus();
 
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         isTablet = (displayMetrics.widthPixels / displayMetrics.density ) >= 600;
+
+        bus.register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        bus.unregister(this);
     }
 
     @Override

@@ -17,6 +17,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    productFlavors{
+        inmemory{
+            applicationId "com.example.ae.yora.inmemory"
+        }
+
+        live{
+            applicationId "com.example.ae.yora"
+        }
+    }
 }
 
 dependencies {
@@ -26,5 +36,6 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.soundcloud.android:android-crop:0.9.10@aar'
+    compile 'com.squareup:otto:1.3.6'
     testCompile 'junit:junit:4.12'
 }

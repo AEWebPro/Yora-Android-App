@@ -1,6 +1,8 @@
 package com.example.ae.yora.activities;
 
+import android.app.Dialog;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -19,8 +21,10 @@ import android.widget.RelativeLayout;
 import com.example.ae.yora.InfraStructure.User;
 import com.example.ae.yora.R;
 import com.example.ae.yora.dialogs.ChangePasswordDialog;
+import com.example.ae.yora.services.Account;
 import com.example.ae.yora.views.MainNavDrawer;
 import com.soundcloud.android.crop.Crop;
+import com.squareup.otto.Subscribe;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,6 +37,8 @@ public class ProfileActivity extends BaseAuthenticatedActivity implements View.O
     private static final int STATE_EDITING = 2;
     private static final String BUNDLE_STATE = "BUNDLE_STATE";
 
+    private static boolean isProgressBarVisible;
+
     private int currrentState;
     private EditText displayNameText;
     private EditText emailText;
@@ -43,6 +49,7 @@ public class ProfileActivity extends BaseAuthenticatedActivity implements View.O
     private View avatarProgressFrame;
     private File tempOutputFile;
 
+    private Dialog progressDialog;
 
     @Override
     protected void onYoraCreate(Bundle savedState) {
@@ -78,6 +85,10 @@ public class ProfileActivity extends BaseAuthenticatedActivity implements View.O
             changeState(STATE_VIEWING);
         }else
             changeState(savedState.getInt(BUNDLE_STATE));
+
+        if(isProgressBarVisible){
+            setProgressBarVisible(true);
+        }
     }
 
     @Override
@@ -137,10 +148,44 @@ public class ProfileActivity extends BaseAuthenticatedActivity implements View.O
                     .output(tempFileUri)
                     .start(this);
         }else if (requestCode == Crop.REQUEST_CROP){
-            //TODO: send tempfileUri to server as new avatar
-            avatarView.setImageResource(0);
-            avatarView.setImageURI(Uri.fromFile(tempOutputFile));
+            avatarProgressFrame.setVisibility(View.VISIBLE);
+            bus.post(new Account.ChangeAvatarRequest(Uri.fromFile(tempOutputFile)));
+
         }
+    }
+
+    @Subscribe
+    public void onAvatarUpdated(Account.ChangeAvatarResponse response){
+        avatarProgressFrame.setVisibility(View.GONE);
+
+        if(!response.didSucced()){
+            response.showErrorToast(this);
+        }
+    }
+
+    @Subscribe
+    public void onProfileUpdated(Account.UpdateProfileResponse response){
+        if(!response.didSucced()){
+            response.showErrorToast(this);
+            changeState(STATE_EDITING);
+        }
+
+        displayNameText.setError(response.getPropretyError("displayName"));
+        emailText.setError(response.getPropretyError("email"));
+        setProgressBarVisible(false);
+    }
+    private void setProgressBarVisible(boolean visible){
+        if(visible){
+            progressDialog = new ProgressDialog.Builder(this)
+                    .setTitle("Updating profile")
+                    .setCancelable(false)
+                    .show();
+        }else if (progressDialog != null){
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
+
+        isProgressBarVisible = visible;
     }
 
     @Override
@@ -210,12 +255,10 @@ public class ProfileActivity extends BaseAuthenticatedActivity implements View.O
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             int itemId = menuItem.getItemId();
             if(itemId == R.id.activity_profile_menu_done){
-                //TODO: send request to update display name and email
-                User user = application.getAuth().getUser();
-                user.setDisplayName(displayNameText.getText().toString());
-                user.setEmail(emailText.getText().toString());
-
+                setProgressBarVisible(true);
                 changeState(STATE_VIEWING);
+                bus.post(new Account.UpdateProfileRequest(displayNameText.getText().toString()
+                        , emailText.getText().toString()));
                 return true;
             }
             return false;

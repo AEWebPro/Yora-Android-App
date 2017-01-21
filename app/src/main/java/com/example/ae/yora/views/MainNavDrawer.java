@@ -12,6 +12,8 @@ import com.example.ae.yora.activities.ContactsActivity;
 import com.example.ae.yora.activities.MainActivity;
 import com.example.ae.yora.activities.ProfileActivity;
 import com.example.ae.yora.activities.SendMessagesActivity;
+import com.example.ae.yora.services.Account;
+import com.squareup.otto.Subscribe;
 
 
 public class MainNavDrawer extends NavDrawer {
@@ -29,7 +31,7 @@ public class MainNavDrawer extends NavDrawer {
         addItem(new BasicNavDrawerItem("Logout",null,R.drawable.ic_backspace_black_24dp,R.id.include_main_nav_drawer_bottom_items){
             @Override
             public void onClick(View view){
-                Toast.makeText(activity, "You have logged out!",Toast.LENGTH_SHORT).show();
+                activity.getYoraApplication().getAuth().logout();
             }
         });
 
@@ -40,5 +42,11 @@ public class MainNavDrawer extends NavDrawer {
         displayName.setText(loggedInUser.getDisplayName());
 
         //TODO: change avatar image to avatar url from logged User
+    }
+
+    @Subscribe
+    public void onUserDetailsUpdated(Account.UserDetailsUpdatedEvent event){
+        //TODO: update avatar url
+        displayName.setText(event.user.getDisplayName());
     }
 }
